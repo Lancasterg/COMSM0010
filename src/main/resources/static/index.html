@@ -1,0 +1,380 @@
+<!--  The original project this code was used from can be found at: -->
+<!--  https://github.com/OpenVidu/openvidu-tutorials/blob/master/openvidu-js-java/-->
+
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Cloudchat</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <!-- Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- Openvidu-browser-->
+    <script src="openvidu-browser-2.7.0.js"></script>
+
+    <!-- Amazon Cognito-->
+    <script src="amazon-cognito-identity.min.js"></script>
+
+    <!-- Application Script-->
+    <script src="app.js"></script>
+
+    <!-- Application Stylesheet-->
+    <link rel="styleSheet" href="style.css" type="text/css" media="screen">
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                html: true
+            });
+            $("#createAccount").click(function (e) {
+                e.preventDefault();
+                showSignUp();
+                return false;
+            });
+            $("#resetPassword").click(function (e) {
+                e.preventDefault();
+                showReset();
+                return false;
+            });
+            $("#user").click(function (e) {
+                e.preventDefault();
+                $("#error-show").text('');
+                return false;
+            });
+            $("#pass").click(function (e) {
+                e.preventDefault();
+                $("#error-show").text('');
+                return false;
+            });
+            $("#passSignupValid").click(function (e) {
+                e.preventDefault();
+                $("#error-show-signup").text('');
+                return false;
+            });
+            $("#userSignup").click(function (e) {
+                e.preventDefault();
+                $("#error-show-signup").text('');
+                return false;
+            });
+            $("#passSignup").click(function (e) {
+                e.preventDefault();
+                $("#error-show-signup").text('' );
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>
+
+
+<!------------------------------>
+<!--------- Email Modal -------->
+<!------------------------------>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="exampleModalLabel">Email Sent</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!------------------------------>
+<!-------- Signup Modal -------->
+<!------------------------------>
+<div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="signupModalLabel">Create Account</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="vertical-center">
+                    <form>
+                        <p>
+                            <label>Email</label><input class="form-control" type="text" id="userSignup" required>
+                        </p>
+                        <p>
+                            <label>Password</label><input class="form-control" type="password" id="passSignup" required>
+                        </p>
+                        <p>
+                            <label>Re-enter Password</label><input class="form-control" type="password"
+                                                                   id="passSignupValid" required>
+                        </p>
+                        <button type="button" class="btn btn-block btn-info" onclick="signUp()">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <p id=error-show-signup class="error-show">
+
+            </p>
+            <div class="modal-footer-1 modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!------------------------------>
+<!--------- Confirm Modal ------>
+<!------------------------------>
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="confirmModalLabel">Confirm Email Address</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-body"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!------------------------------>
+<!--------- Reset Password ----->
+<!------------------------------>
+<div class="modal fade" id="resetModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="resetModalLabel">Confirm Email Address</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="vertical-center">
+                    <!--<form class="form-group jumbotron" onsubmit="return false">-->
+                    <form>
+                        <p>
+                            <label>Email</label><input class="form-control" type="text" id="userReset" required>
+                        </p>
+                        <button type="button" class="btn right btn-info" onclick="sendReset()">Reset Password</button>
+                    </form>
+                    <form>
+                        <p>
+                            <label>Code</label><input class="form-control" type="password" id="codeReset" required>
+                        </p>
+                        <button type="button" class="btn right btn-info" onclick="resetPassword()">Submit Code</button>
+                    </form>
+                </div>
+
+            </div>
+            <div class="modal-footer-1 modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!------------------------------>
+<!----------- Navbar ----------->
+<!------------------------------>
+<nav class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <img class="navbar-brand nav-logo" src="images/cloudchat.png"/>
+            <form id="session-form" class="form-inline">
+                <div class="form-group">
+                    <label id="join-session"> Join session: </label>
+                    <input class="form-control" id="sessName" placeholder="a6d98c36-a543-47d5-815f-33d60c429691">
+                </div>
+                <button type="submit" class="btn btn-info" onclick=" return setSession()">Submit</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+
+<!------------------------------>
+<!------------ Login ----------->
+<!------------------------------>
+<div id="main-container" class="container">
+    <div id="not-logged">
+        <div class="vertical-right">
+            <form class="form-group jumbotron" onsubmit="return false">
+                <p>
+                    <label>Username</label><input class="form-control" type="text" id="user" required>
+                </p>
+                <p>
+                    <label>Password</label><input class="form-control" type="password" id="pass" required>
+                </p>
+                <p class="text-center">
+                    <button class="btn btn-lg btn-info" onclick="login()">Login</button>
+                </p>
+                <p id=error-show class="error-show">
+
+                </p>
+                <p>
+                    <a id="createAccount">Create Account </a>
+                </p>
+                <p>
+                    <a id="resetPassword">Forgotten your password? </a>
+                </p>
+            </form>
+
+            <!--<table class="table">-->
+                <!--<tr>-->
+                    <!--<th>User</th>-->
+                    <!--<th>Pass</th>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>user1</td>-->
+                    <!--<td>pass</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>user2</td>-->
+                    <!--<td>pass</td>-->
+                <!--</tr>-->
+            <!--</table>-->
+        </div>
+        <div class>
+
+        </div>
+    </div>
+
+
+    <!------------------------------>
+    <!---------- Logged in --------->
+    <!------------------------------>
+    <div id="logged" hidden>
+        <div id="join" class="vertical-center" hidden>
+            <div id="join-dialog" class="jumbotron">
+                <h1>Join or create a video session</h1>
+                <form class="form-group" onsubmit="return false">
+                    <p>
+                        <label>Participant name</label>
+                        <input class="form-control" type="text" id="nickName" placeholder="John" required>
+                    </p>
+                    <p>
+                        <label>Session</label>
+                        <input class="form-control" type="text" id="sessionName"
+                               placeholder="a6d98c36-a543-47d5-815f-33d60c429691" required>
+                    </p>
+                    <p class="text-center">
+                        <button class="btn btn-lg btn-success" onclick="joinSession()">Join!</button>
+                    </p>
+                </form>
+                <hr>
+                <div id="login-info">
+                    <div>Logged as <span id="name-user"></span></div>
+                    <button id="logout-btn" class="btn btn-warning" onclick="logOut()">Log out</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!------------------------------>
+        <!----------- Session ---------->
+        <!------------------------------>
+        <div id="session" hidden>
+            <div id="session-header">
+                <h1 id="session-title"></h1>
+                <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession"
+                       onmouseup="removeUser(); leaveSession()" value="Leave session">
+                <form class="form-inline" onsubmit="return false">
+                    <p>
+                        <label>Enter a friend's email address to invite them to the chat</label>
+                    </p>
+                    <p>
+                        <input id="invite-entry" class="form-control" type="text" placeholder="example@email.com"
+                               required>
+                        <button class="btn btn-small btn-info" onclick="inviteEmail()">Invite</button>
+                    </p>
+                </form>
+            </div>
+            <div id="main-video" class="col-md-6">
+                <p class="nickName"></p>
+                <p class="userName"></p>
+                <video autoplay playsinline="true"></video>
+            </div>
+            <div id="video-container" class="col-md-6"></div>
+            <p>
+            <hr>
+            </p>
+
+        </div>
+    </div>
+</div>
+
+
+<!------------------------------>
+<!------------ Footer ---------->
+<!------------------------------>
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted"> Powered by OpenVidu, Spring Boot and AWS</div>
+        <a href="https://github.com/Lancasterg/comsm0010_assignments">
+            <img class="logo" src="images/logo_github.png"/></a>
+        <a href="http://www.openvidu.io/" target="_blank">
+            <img class="logo" src="images/openvidu_globe_bg_transp_cropped.png"/></a>
+        <a href="https://aws.amazon.com/">
+            <img class="logo" src="images/logo_aws.png"/></a>
+        <a href="https://spring.io/projects/spring-boot">
+            <img class="logo" src="images/logo_spring.png"/></a>
+
+    </div>
+</footer>
+
+
+<script>
+    (function () {
+        url = window.location.href;
+        var check = Object.values(parseURLParams(url))[0][0];
+        if (check !== undefined) {
+            loginGuest();
+            sessionName = check;
+            $("#logged").show();
+            $("#session").show();
+            $("#not-logged").hide();
+            joinSessionName();
+        }
+    })();
+</script>
+
+
+</body>
+
+</html>
