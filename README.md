@@ -3,11 +3,14 @@
 [![Docker badge](https://img.shields.io/docker/pulls/fiware/orion.svg)](https://hub.docker.com/r/openvidu/)
 [![Support badge](https://img.shields.io/badge/support-sof-yellowgreen.svg)](https://groups.google.com/forum/#!forum/openvidu)
 
-[![][OpenViduLogo]](http://openvidu.io)
+# COMSM0010 Cloud Project
 
-openvidu-js-java
-===
+## Cloudchat, a cloud-based live video chat service.
 
-Visit [openvidu.io/docs/tutorials/openvidu-js-java/](http://openvidu.io/docs/tutorials/openvidu-js-java/)
 
-[OpenViduLogo]: https://secure.gravatar.com/avatar/5daba1d43042f2e4e85849733c8e5702?s=120
+A live version of the application can be found at https://www.cloudchat.link/
+
+If the application is down, please don't hesitate to contact me at qv18258@bristol.ac.uk to arrange a time for marking.
+
+Please note that two computers are required to test this application properly.
+
